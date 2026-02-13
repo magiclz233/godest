@@ -1,0 +1,17 @@
+app:
+  name: "GoPro"
+  port: ":8080"
+  mode: "debug"
+
+database:
+  driver: "sqlite"
+  source: "gopro.db"
+
+redis:
+  addr: "localhost:6379"
+  password: ""
+  db: 0
+
+jwt:
+  secret: "your-secret-key-should-be-complex"
+  expire: 24 # 24小时
