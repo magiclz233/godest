@@ -1,10 +1,10 @@
 package main
 
 import (
-	"go_pro/config"
-	"go_pro/internal/model"
-	"go_pro/pkg/database"
-	"go_pro/pkg/logger"
+	"godest/config"
+	"godest/internal/model"
+	"godest/pkg/database"
+	"godest/pkg/logger"
 
 	"go.uber.org/zap"
 )

@@ -3,7 +3,7 @@ package handler
 import (
 	"net/http"
 
-	"go_pro/internal/service"
+	"godest/internal/service"
 
 	"github.com/gin-gonic/gin"
 )

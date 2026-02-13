@@ -10,7 +10,7 @@
 package mock
 
 import (
-	model "go_pro/internal/model"
+	model "godest/internal/model"
 	reflect "reflect"
 
 	gomock "go.uber.org/mock/gomock"

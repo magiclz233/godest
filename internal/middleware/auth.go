@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"go_pro/pkg/utils"
+	"godest/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )

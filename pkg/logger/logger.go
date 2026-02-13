@@ -30,7 +30,7 @@ func Init() {
 
 	// 创建 Logger 实例
 	Log = zap.New(core, zap.AddCaller()) // AddCaller 会在日志中添加调用者信息 (文件名和行号)
-	
+
 	// 替换全局的 logger，方便直接使用 zap.L()
 	zap.ReplaceGlobals(Log)
 }

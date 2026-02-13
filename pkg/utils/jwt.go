@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"go_pro/config"
+	"godest/config"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -32,7 +32,7 @@ func (j *JWTUtil) GenerateToken(userID uint, username string) (string, error) {
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Duration(cfg.Expire) * time.Hour)),
-			Issuer:    "go_pro",
+			Issuer:    "godest",
 		},
 	}
 

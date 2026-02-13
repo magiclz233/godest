@@ -8,12 +8,12 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"go_pro/internal/handler"
-	"go_pro/internal/repository"
-	"go_pro/internal/service"
-	"go_pro/pkg/cache"
-	"go_pro/pkg/utils"
-	"go_pro/router"
+	"godest/internal/handler"
+	"godest/internal/repository"
+	"godest/internal/service"
+	"godest/pkg/cache"
+	"godest/pkg/utils"
+	"godest/router"
 )
 
 // Injectors from wire.go:

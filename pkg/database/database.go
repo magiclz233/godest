@@ -3,7 +3,7 @@ package database
 import (
 	"log"
 
-	"go_pro/config"
+	"godest/config"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"

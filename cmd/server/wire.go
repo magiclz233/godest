@@ -4,12 +4,12 @@
 package main
 
 import (
-	"go_pro/internal/handler"
-	"go_pro/internal/repository"
-	"go_pro/internal/service"
-	"go_pro/pkg/cache"
-	"go_pro/pkg/utils"
-	"go_pro/router"
+	"godest/internal/handler"
+	"godest/internal/repository"
+	"godest/internal/service"
+	"godest/pkg/cache"
+	"godest/pkg/utils"
+	"godest/router"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"

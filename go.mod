@@ -1,4 +1,4 @@
-module go_pro
+module godest
 
 go 1.24.0
 

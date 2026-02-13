@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"go_pro/internal/model"
-	"go_pro/pkg/database"
+	"godest/internal/model"
+	"godest/pkg/database"
 )
 
 // IUserRepository 用户仓库接口

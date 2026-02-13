@@ -4,12 +4,12 @@ import (
 	"errors"
 	"testing"
 
-	"go_pro/config"
-	"go_pro/internal/model"
-	"go_pro/internal/repository/mock"
-	"go_pro/internal/service"
-	"go_pro/pkg/cache"
-	"go_pro/pkg/utils"
+	"godest/config"
+	"godest/internal/model"
+	"godest/internal/repository/mock"
+	"godest/internal/service"
+	"godest/pkg/cache"
+	"godest/pkg/utils"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"

@@ -6,10 +6,10 @@ import (
 	"errors"
 	"time"
 
-	"go_pro/internal/model"
-	"go_pro/internal/repository"
-	"go_pro/pkg/cache"
-	"go_pro/pkg/utils"
+	"godest/internal/model"
+	"godest/internal/repository"
+	"godest/pkg/cache"
+	"godest/pkg/utils"
 )
 
 // UserService 用户业务逻辑层

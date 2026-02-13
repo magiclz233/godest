@@ -1,9 +1,9 @@
 package router
 
 import (
-	"go_pro/config"
-	"go_pro/internal/handler"
-	"go_pro/internal/middleware"
+	"godest/config"
+	"godest/internal/handler"
+	"godest/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
