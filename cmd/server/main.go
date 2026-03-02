@@ -2,7 +2,7 @@ package main
 
 import (
 	"godest/config"
-	"godest/internal/user/domain"
+	"godest/internal/user"
 	"godest/pkg/database"
 	"godest/pkg/logger"
 
@@ -21,12 +21,12 @@ func main() {
 	database.Init()
 
 	// 4. 自动迁移数据库表
-	if err := database.DB.AutoMigrate(&domain.User{}); err != nil {
+	if err := database.DB.AutoMigrate(&user.User{}); err != nil {
 		logger.Log.Fatal("Database migration failed", zap.Error(err))
 	}
 	logger.Log.Info("Database connected and migrated")
 
-	// 5. 使用 Wire 初始化应用 (依赖注入)
+	// 5. 手写依赖注入并初始化应用
 	r, err := InitApp()
 	if err != nil {
 		logger.Log.Fatal("Failed to initialize app", zap.Error(err))

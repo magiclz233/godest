@@ -1,21 +1,19 @@
-package api
+package user
 
 import (
 	"net/http"
 
-	"godest/internal/user/app"
-
 	"github.com/gin-gonic/gin"
 )
 
-// UserHandler 用户 HTTP 入口
-type UserHandler struct {
-	svc *app.UserService
+// Handler 用户 HTTP 入口
+type Handler struct {
+	svc *Service
 }
 
-// NewUserHandler 创建用户 Handler
-func NewUserHandler(svc *app.UserService) *UserHandler {
-	return &UserHandler{svc: svc}
+// NewHandler 创建用户 Handler
+func NewHandler(svc *Service) *Handler {
+	return &Handler{svc: svc}
 }
 
 // RegisterRequest 注册请求
@@ -26,7 +24,7 @@ type RegisterRequest struct {
 }
 
 // Register 用户注册
-func (h *UserHandler) Register(c *gin.Context) {
+func (h *Handler) Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -48,7 +46,7 @@ type LoginRequest struct {
 }
 
 // Login 用户登录
-func (h *UserHandler) Login(c *gin.Context) {
+func (h *Handler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -65,7 +63,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 }
 
 // ListUsers 获取用户列表
-func (h *UserHandler) ListUsers(c *gin.Context) {
+func (h *Handler) ListUsers(c *gin.Context) {
 	users, err := h.svc.ListUsers()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "无法获取用户列表"})
