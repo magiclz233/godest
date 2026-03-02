@@ -1,11 +1,11 @@
 app:
-  name: "GoPro"
+  name: "godest"
   port: ":8080"
   mode: "debug"
 
 database:
   driver: "sqlite"
-  source: "gopro.db"
+  source: "godest.db"
 
 redis:
   addr: "localhost:6379"

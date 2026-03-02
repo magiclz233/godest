@@ -10,7 +10,7 @@ import (
 )
 
 // AuthMiddleware JWT 认证中间件
-func AuthMiddleware() gin.HandlerFunc {
+func AuthMiddleware(jwtUtil *utils.JWTUtil) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -26,7 +26,6 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		jwtUtil := utils.NewJWTUtil()
 		claims, err := jwtUtil.ParseToken(parts[1])
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
@@ -34,10 +33,8 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// 将用户信息保存到上下文，供后续 Handler 使用
 		c.Set("userID", claims.UserID)
 		c.Set("username", claims.Username)
-
 		c.Next()
 	}
 }

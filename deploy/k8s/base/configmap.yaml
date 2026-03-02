@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: godest-config
+data:
+  config.yaml: |
+    app:
+      name: "godest"
+      port: ":8080"
+      mode: "release"
+    database:
+      driver: "sqlite"
+      source: "/data/godest.db"
+    redis:
+      addr: "redis:6379"
+      password: ""
+      db: 0
+    jwt:
+      secret: "change-me-in-production"
+      expire: 24

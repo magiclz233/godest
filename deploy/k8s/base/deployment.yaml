@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: godest
+  labels:
+    app: godest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: godest
+  template:
+    metadata:
+      labels:
+        app: godest
+    spec:
+      containers:
+      - name: godest
+        image: godest:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+          readOnly: true
+        - name: data
+          mountPath: /data
+        readinessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 3
+          periodSeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 10
+      volumes:
+      - name: config
+        configMap:
+          name: godest-config
+      - name: data
+        emptyDir: {}

@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"strings"
 
 	"github.com/spf13/viper"
 )
@@ -51,16 +52,31 @@ var GlobalConfig *Config
 // LoadConfig 加载配置
 // LoadConfig reads configuration from file
 func LoadConfig() {
-	viper.SetConfigName("config") // 配置文件名称 (不带扩展名)
-	viper.SetConfigType("yaml")   // 配置文件类型
-	viper.AddConfigPath(".")      // 查找配置文件的路径 (当前目录)
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
 	viper.AddConfigPath("./config")
 
+	// 默认值用于本地快速启动
+	viper.SetDefault("app.name", "godest")
+	viper.SetDefault("app.port", ":8080")
+	viper.SetDefault("app.mode", "debug")
+	viper.SetDefault("database.driver", "sqlite")
+	viper.SetDefault("database.source", "godest.db")
+	viper.SetDefault("redis.addr", "localhost:6379")
+	viper.SetDefault("redis.db", 0)
+	viper.SetDefault("jwt.expire", 24)
+
+	// 支持环境变量覆盖，例如 GODEST_APP_PORT=:9090
+	viper.SetEnvPrefix("GODEST")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.AutomaticEnv()
+
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatalf("Error reading config file, %s", err)
+		log.Printf("配置文件读取失败，将仅使用默认值和环境变量: %v", err)
 	}
 
 	if err := viper.Unmarshal(&GlobalConfig); err != nil {
-		log.Fatalf("Unable to decode into struct, %v", err)
+		log.Fatalf("配置解析失败: %v", err)
 	}
 }
