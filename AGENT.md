@@ -14,19 +14,21 @@
 - 配置管理：Viper（`config/config.go`，配置文件 `config/config.yaml`）
 - 数据库：GORM + SQLite（默认），初始化在 `pkg/database`
 - 缓存：Redis（`pkg/cache`）
-- 鉴权：JWT（`pkg/utils/jwt.go`），中间件在 `internal/middleware/auth.go`
+- 鉴权：JWT（`pkg/utils/jwt.go`），中间件在 `internal/platform/http/middleware/auth.go`
 - 日志：Zap（`pkg/logger`）
-- 测试：Testify + GoMock（mock 代码在 `internal/repository/mock`）
+- 测试：Testify（用户服务测试在 `internal/user/app/service_test.go`）
 
 ## 目录结构（关键路径）
 
 - `cmd/server`：应用入口与 Wire 组装
 - `config`：配置结构与加载逻辑
-- `internal/handler`：HTTP Handler
-- `internal/service`：业务逻辑（包含缓存策略）
-- `internal/repository`：数据访问层（接口 + 实现 + mock）
+- `internal/user/api`：用户模块 HTTP Handler
+- `internal/user/app`：用户模块业务逻辑（包含缓存策略）
+- `internal/user/domain`：用户领域实体与仓储接口
+- `internal/user/infra/repository`：用户仓储实现
+- `internal/platform/http/router`：路由注册
+- `internal/platform/http/middleware`：HTTP 中间件
 - `pkg`：可复用基础组件（cache/database/logger/utils）
-- `router`：路由注册
 
 ## 代码规范
 
@@ -43,7 +45,7 @@ go fmt ./...
 go mod tidy
 go test ./...
 go vet ./...
-go run cmd/server/main.go
-wire cmd/server/wire.go
+go run ./cmd/server
+wire ./cmd/server
 ```
 
