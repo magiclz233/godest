@@ -4,12 +4,12 @@
 package main
 
 import (
-	"godest/internal/handler"
-	"godest/internal/repository"
-	"godest/internal/service"
+	httpRouter "godest/internal/platform/http/router"
+	"godest/internal/user/api"
+	"godest/internal/user/app"
+	"godest/internal/user/infra/repository"
 	"godest/pkg/cache"
 	"godest/pkg/utils"
-	"godest/router"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/wire"
@@ -21,9 +21,9 @@ func InitApp() (*gin.Engine, error) {
 		cache.NewRedisClient,
 		utils.NewJWTUtil,
 		utils.NewPasswordUtil,
-		service.NewUserService,
-		handler.NewUserHandler,
-		router.Init,
+		app.NewUserService,
+		api.NewUserHandler,
+		httpRouter.Init,
 	)
 	return &gin.Engine{}, nil
 }

@@ -8,23 +8,23 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"godest/internal/handler"
-	"godest/internal/repository"
-	"godest/internal/service"
+	"godest/internal/platform/http/router"
+	"godest/internal/user/api"
+	"godest/internal/user/app"
+	"godest/internal/user/infra/repository"
 	"godest/pkg/cache"
 	"godest/pkg/utils"
-	"godest/router"
 )
 
 // Injectors from wire.go:
 
 func InitApp() (*gin.Engine, error) {
-	iUserRepository := repository.NewUserRepository()
+	domainRepository := repository.NewUserRepository()
 	redisClient := cache.NewRedisClient()
 	jwtUtil := utils.NewJWTUtil()
 	passwordUtil := utils.NewPasswordUtil()
-	userService := service.NewUserService(iUserRepository, redisClient, jwtUtil, passwordUtil)
-	userHandler := handler.NewUserHandler(userService)
-	engine := router.Init(userHandler)
+	userService := app.NewUserService(domainRepository, redisClient, jwtUtil, passwordUtil)
+	userHandler := api.NewUserHandler(userService)
+	engine := router.Init(userHandler, jwtUtil)
 	return engine, nil
 }
