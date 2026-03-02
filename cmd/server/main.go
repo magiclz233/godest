@@ -2,7 +2,7 @@ package main
 
 import (
 	"godest/config"
-	"godest/internal/model"
+	"godest/internal/user/domain"
 	"godest/pkg/database"
 	"godest/pkg/logger"
 
@@ -21,7 +21,7 @@ func main() {
 	database.Init()
 
 	// 4. 自动迁移数据库表
-	if err := database.DB.AutoMigrate(&model.User{}); err != nil {
+	if err := database.DB.AutoMigrate(&domain.User{}); err != nil {
 		logger.Log.Fatal("Database migration failed", zap.Error(err))
 	}
 	logger.Log.Info("Database connected and migrated")
