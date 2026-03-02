@@ -1,30 +1,26 @@
 # godest
 
-Go 企业级后端服务示例，采用「按业务模块划分，模块内分层」的结构。
+Go 企业级后端服务示例，采用「按业务模块划分」的结构。
 
 ## 架构说明
 
 - 业务模块：`internal/user`
-- 模块内分层：`api -> app -> domain -> infra`
+- 模块代码：统一放在 `internal/user` 包下，按业务语义分文件
 - 平台层：`internal/platform/http`（路由、中间件）
-- DI：Google Wire（编译期注入）
+- DI：手写构造函数注入（简单直接）
 - 部署：Docker + Kustomize（`base + overlays`）
 
 ## 目录结构
 
 ```text
 godest/
-├── cmd/server/                         # 应用入口 + Wire 注入
+├── cmd/server/                         # 应用入口 + 手写 DI 组装
 ├── config/                             # 配置与加载
 ├── internal/
 │   ├── platform/http/
 │   │   ├── middleware/
 │   │   └── router/
-│   └── user/
-│       ├── api/
-│       ├── app/
-│       ├── domain/
-│       └── infra/repository/
+│   └── user/                           # 用户业务包
 ├── pkg/                                # 通用组件
 ├── deploy/
 │   ├── docker/
@@ -49,14 +45,6 @@ godest/
 go fmt ./...
 go test ./...
 go run ./cmd/server
-```
-
-## Wire
-
-当你修改构造函数依赖关系后，重新生成：
-
-```bash
-wire ./cmd/server
 ```
 
 ## Docker
