@@ -3,7 +3,7 @@ APP_NAME=godest
 .PHONY: run test fmt vet build docker-build k8s-dev k8s-prod
 
 run:
-	go run ./cmd/server
+	go run ./cmd
 
 test:
 	go test ./...
@@ -15,7 +15,7 @@ vet:
 	go vet ./...
 
 build:
-	go build -o bin/$(APP_NAME) ./cmd/server
+	go build -o bin/$(APP_NAME) ./cmd
 
 docker-build:
 	docker build -f deploy/docker/Dockerfile -t $(APP_NAME):latest .
