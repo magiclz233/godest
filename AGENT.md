@@ -1,37 +1,78 @@
 # AGENT 说明（godest）
 
-## 语言要求
+## 语言约定
 
-- 回复语言：简体中文
-- 代码注释：简体中文
-- 对外接口返回的文案：优先简体中文（与现有接口保持一致）
+- 默认使用简体中文沟通
+- 代码标识符、日志、错误信息保持原语言
+- 代码注释可中英文，但应简洁、准确
 
-## 项目概览
+## 项目定位
 
-- Go 模块名：`godest`
-- Web 框架：Gin
-- 依赖注入：手写构造函数注入（`cmd/server/app.go`）
-- 配置管理：Viper（`config/config.go`，配置文件 `config/config.yaml`）
-- 数据库：GORM + SQLite（默认），初始化在 `pkg/database`
-- 缓存：Redis（`pkg/cache`）
-- 鉴权：JWT（`pkg/utils/jwt.go`），中间件在 `internal/platform/http/middleware/auth.go`
-- 日志：Zap（`pkg/logger`）
-- 测试：Testify（用户服务测试在 `internal/user/service_test.go`）
+`godest` 是一个练手项目，目标是用尽量简单的分层结构完成完整 Web 后端链路。
 
-## 目录结构（关键路径）
+## 目录职责（必须遵守）
 
-- `cmd/server`：应用入口与手写 DI 组装
-- `config`：配置结构与加载逻辑
-- `internal/user`：用户业务包（实体、仓储、服务、HTTP Handler）
-- `internal/platform/http/router`：路由注册
-- `internal/platform/http/middleware`：HTTP 中间件
-- `pkg`：可复用基础组件（cache/database/logger/utils）
+- `cmd/main.go`
+  - 应用入口与依赖组装（手写 DI）
+  - 仅做启动编排，不写具体业务
 
-## 代码规范
+- `internal/config`
+  - 配置结构定义
+  - 配置加载（文件 + 环境变量）
 
-- Import 路径统一使用 `godest/...`，不要再出现旧模块名
-- 代码格式化使用 `gofmt`
-- 不要把密钥、密码等敏感信息写入代码或提交到仓库；本地开发应通过配置文件/环境变量管理
+- `internal/transport/http/router`
+  - 路由注册与分组
+  - 将 handler 与 middleware 组装到路由上
+
+- `internal/transport/http/middleware`
+  - HTTP 中间件（认证、鉴权、请求链路增强）
+
+- `internal/handler`
+  - 处理 HTTP 输入输出
+  - 参数绑定、校验、状态码与响应格式
+  - 不直接访问数据库
+
+- `internal/service`
+  - 业务逻辑与流程编排
+  - 调用 repository 完成持久化
+  - 不依赖 Gin/HTTP 细节
+
+- `internal/repository`
+  - 数据访问实现（GORM/SQL）
+  - 对外暴露接口，屏蔽存储细节
+
+- `internal/model`
+  - 实体与数据结构定义（Entity/DTO）
+
+- `pkg`
+  - 通用组件（cache/database/logger/utils）
+  - 尽量保持业务无关
+
+## 依赖方向规范
+
+- 允许：`handler -> service -> repository`
+- 允许：`router -> handler`，`router -> middleware`
+- 允许：`service/repository -> model`
+- 允许：`cmd -> 所有需要组装的包`
+- 禁止：跨层反向依赖（如 `repository -> service`）
+- 禁止：在 `handler` 写业务规则或数据库 SQL
+
+## 开发规则
+
+- 保持 KISS：优先简单可维护，不做过度抽象
+- 保持 YAGNI：只实现当前明确需求
+- 保持 DRY：重复逻辑提取到公共函数或组件
+- 保持 SRP：每个文件/类型职责单一
+
+## 新增功能放置规范
+
+新增一个功能（如 `order`）时，按以下顺序落地：
+
+1. `internal/model/order.go`
+2. `internal/repository/order_repository.go`
+3. `internal/service/order_service.go`
+4. `internal/handler/order_handler.go`
+5. `internal/transport/http/router` 中注册对应路由
 
 ## 常用命令
 
@@ -40,6 +81,5 @@ go fmt ./...
 go mod tidy
 go test ./...
 go vet ./...
-go run ./cmd/server
+go run ./cmd
 ```
-
