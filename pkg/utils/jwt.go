@@ -4,27 +4,23 @@ import (
 	"errors"
 	"time"
 
-	"godest/config"
+	"godest/internal/config"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// JWTClaims 自定义 JWT Claims
 type JWTClaims struct {
 	UserID   uint   `json:"user_id"`
 	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
 
-// JWTUtil JWT 工具结构体
 type JWTUtil struct{}
 
-// NewJWTUtil 创建 JWT 工具实例
 func NewJWTUtil() *JWTUtil {
 	return &JWTUtil{}
 }
 
-// GenerateToken 生成 JWT Token
 func (j *JWTUtil) GenerateToken(userID uint, username string) (string, error) {
 	cfg := config.GlobalConfig.JWT
 	claims := JWTClaims{
@@ -40,13 +36,11 @@ func (j *JWTUtil) GenerateToken(userID uint, username string) (string, error) {
 	return token.SignedString([]byte(cfg.Secret))
 }
 
-// ParseToken 解析 JWT Token
 func (j *JWTUtil) ParseToken(tokenString string) (*JWTClaims, error) {
 	cfg := config.GlobalConfig.JWT
 	token, err := jwt.ParseWithClaims(tokenString, &JWTClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(cfg.Secret), nil
 	})
-
 	if err != nil {
 		return nil, err
 	}

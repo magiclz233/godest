@@ -1,4 +1,4 @@
-package user
+package service
 
 import (
 	"context"
@@ -6,26 +6,26 @@ import (
 	"errors"
 	"time"
 
+	"godest/internal/model"
+	"godest/internal/repository"
 	"godest/pkg/cache"
 	"godest/pkg/utils"
 )
 
-// Service 用户业务服务
-type Service struct {
-	repo  Repository
+type UserService struct {
+	repo  repository.UserRepository
 	redis *cache.RedisClient
 	jwt   *utils.JWTUtil
 	pwd   *utils.PasswordUtil
 }
 
-// NewService 创建用户服务
-func NewService(
-	repo Repository,
+func NewUserService(
+	repo repository.UserRepository,
 	redis *cache.RedisClient,
 	jwt *utils.JWTUtil,
 	pwd *utils.PasswordUtil,
-) *Service {
-	return &Service{
+) *UserService {
+	return &UserService{
 		repo:  repo,
 		redis: redis,
 		jwt:   jwt,
@@ -33,10 +33,9 @@ func NewService(
 	}
 }
 
-// Register 用户注册
-func (s *Service) Register(username, email, password string) error {
+func (s *UserService) Register(username, email, password string) error {
 	if _, err := s.repo.GetByUsername(username); err == nil {
-		return errors.New("用户名已存在")
+		return errors.New("user already exists")
 	}
 
 	hashedPassword, err := s.pwd.HashPassword(password)
@@ -44,7 +43,7 @@ func (s *Service) Register(username, email, password string) error {
 		return err
 	}
 
-	u := &User{
+	u := &model.User{
 		Username: username,
 		Email:    email,
 		Password: hashedPassword,
@@ -52,42 +51,34 @@ func (s *Service) Register(username, email, password string) error {
 	return s.repo.Create(u)
 }
 
-// LoginResponse 登录响应
-type LoginResponse struct {
-	Token string `json:"token"`
-	User  User   `json:"user"`
-}
-
-// Login 用户登录
-func (s *Service) Login(username, password string) (*LoginResponse, error) {
+func (s *UserService) Login(username, password string) (*model.LoginResponse, error) {
 	u, err := s.repo.GetByUsername(username)
 	if err != nil {
-		return nil, errors.New("用户不存在")
+		return nil, errors.New("user not found")
 	}
 
 	if !s.pwd.CheckPassword(password, u.Password) {
-		return nil, errors.New("密码错误")
+		return nil, errors.New("invalid password")
 	}
 
 	token, err := s.jwt.GenerateToken(u.ID, u.Username)
 	if err != nil {
-		return nil, errors.New("生成 Token 失败")
+		return nil, errors.New("failed to generate token")
 	}
 
-	return &LoginResponse{
+	return &model.LoginResponse{
 		Token: token,
 		User:  *u,
 	}, nil
 }
 
-// ListUsers 获取用户列表（带缓存）
-func (s *Service) ListUsers() ([]User, error) {
+func (s *UserService) ListUsers() ([]model.User, error) {
 	ctx := context.Background()
 	cacheKey := "users:all"
 
 	if s.redis != nil && s.redis.Client != nil {
 		if val, err := s.redis.Client.Get(ctx, cacheKey).Result(); err == nil {
-			var users []User
+			var users []model.User
 			if err := json.Unmarshal([]byte(val), &users); err == nil {
 				return users, nil
 			}

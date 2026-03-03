@@ -1,11 +1,13 @@
-package user_test
+package service_test
 
 import (
 	"errors"
 	"testing"
 
-	"godest/config"
-	"godest/internal/user"
+	"godest/internal/config"
+	"godest/internal/model"
+	"godest/internal/repository"
+	"godest/internal/service"
 	"godest/pkg/cache"
 	"godest/pkg/utils"
 
@@ -13,25 +15,27 @@ import (
 )
 
 type fakeUserRepo struct {
-	createFn        func(u *user.User) error
-	getByUsernameFn func(username string) (*user.User, error)
-	getAllFn        func() ([]user.User, error)
+	createFn        func(u *model.User) error
+	getByUsernameFn func(username string) (*model.User, error)
+	getAllFn        func() ([]model.User, error)
 }
 
-func (f *fakeUserRepo) Create(u *user.User) error {
+func (f *fakeUserRepo) Create(u *model.User) error {
 	return f.createFn(u)
 }
 
-func (f *fakeUserRepo) GetByUsername(username string) (*user.User, error) {
+func (f *fakeUserRepo) GetByUsername(username string) (*model.User, error) {
 	return f.getByUsernameFn(username)
 }
 
-func (f *fakeUserRepo) GetAll() ([]user.User, error) {
+func (f *fakeUserRepo) GetAll() ([]model.User, error) {
 	if f.getAllFn == nil {
-		return []user.User{}, nil
+		return []model.User{}, nil
 	}
 	return f.getAllFn()
 }
+
+var _ repository.UserRepository = (*fakeUserRepo)(nil)
 
 func TestUserServiceRegister(t *testing.T) {
 	config.GlobalConfig = &config.Config{
@@ -42,23 +46,23 @@ func TestUserServiceRegister(t *testing.T) {
 	}
 
 	repo := &fakeUserRepo{
-		getByUsernameFn: func(username string) (*user.User, error) {
+		getByUsernameFn: func(username string) (*model.User, error) {
 			if username == "existing" {
-				return &user.User{Username: "existing"}, nil
+				return &model.User{Username: "existing"}, nil
 			}
 			return nil, errors.New("not found")
 		},
-		createFn: func(u *user.User) error { return nil },
+		createFn: func(u *model.User) error { return nil },
 	}
 
-	svc := user.NewService(repo, &cache.RedisClient{}, utils.NewJWTUtil(), utils.NewPasswordUtil())
+	svc := service.NewUserService(repo, &cache.RedisClient{}, utils.NewJWTUtil(), utils.NewPasswordUtil())
 
 	err := svc.Register("testuser", "test@example.com", "password123")
 	assert.NoError(t, err)
 
 	err = svc.Register("existing", "existing@example.com", "password123")
 	assert.Error(t, err)
-	assert.Equal(t, "用户名已存在", err.Error())
+	assert.Equal(t, "user already exists", err.Error())
 }
 
 func TestUserServiceLogin(t *testing.T) {
@@ -74,9 +78,9 @@ func TestUserServiceLogin(t *testing.T) {
 	hashedPwd, _ := pwdUtil.HashPassword("secret")
 
 	repo := &fakeUserRepo{
-		getByUsernameFn: func(username string) (*user.User, error) {
+		getByUsernameFn: func(username string) (*model.User, error) {
 			if username == "testuser" {
-				u := &user.User{
+				u := &model.User{
 					Username: "testuser",
 					Password: hashedPwd,
 				}
@@ -85,10 +89,10 @@ func TestUserServiceLogin(t *testing.T) {
 			}
 			return nil, errors.New("not found")
 		},
-		createFn: func(u *user.User) error { return nil },
+		createFn: func(u *model.User) error { return nil },
 	}
 
-	svc := user.NewService(repo, &cache.RedisClient{}, jwtUtil, pwdUtil)
+	svc := service.NewUserService(repo, &cache.RedisClient{}, jwtUtil, pwdUtil)
 
 	resp, err := svc.Login("testuser", "secret")
 	assert.NoError(t, err)
@@ -98,5 +102,5 @@ func TestUserServiceLogin(t *testing.T) {
 	resp, err = svc.Login("testuser", "wrongpassword")
 	assert.Error(t, err)
 	assert.Nil(t, resp)
-	assert.Equal(t, "密码错误", err.Error())
+	assert.Equal(t, "invalid password", err.Error())
 }

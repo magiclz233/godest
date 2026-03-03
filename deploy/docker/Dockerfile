@@ -6,7 +6,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /out/godest ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /out/godest ./cmd
 
 FROM alpine:3.21
 
@@ -14,7 +14,7 @@ WORKDIR /app
 
 RUN addgroup -S app && adduser -S app -G app
 COPY --from=builder /out/godest /app/godest
-COPY config/config.yaml /app/config/config.yaml
+COPY internal/config/config.yaml /app/config/config.yaml
 
 USER app
 EXPOSE 8080

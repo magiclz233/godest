@@ -14,4 +14,4 @@ redis:
 
 jwt:
   secret: "your-secret-key-should-be-complex"
-  expire: 24 # 24小时
+  expire: 24
