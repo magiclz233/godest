@@ -1,6 +1,6 @@
 app:
   name: "godest"
-  port: ":8080"
+  port: ":9090"
   mode: "debug"
 
 database:
