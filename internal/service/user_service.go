@@ -19,6 +19,13 @@ type UserService struct {
 	pwd   *utils.PasswordUtil
 }
 
+var (
+	ErrUserAlreadyExists   = errors.New("user already exists")
+	ErrUserNotFound        = errors.New("user not found")
+	ErrInvalidPassword     = errors.New("invalid password")
+	ErrTokenGenerateFailed = errors.New("failed to generate token")
+)
+
 func NewUserService(
 	repo repository.UserRepository,
 	redis *cache.RedisClient,
@@ -35,7 +42,7 @@ func NewUserService(
 
 func (s *UserService) Register(username, email, password string) error {
 	if _, err := s.repo.GetByUsername(username); err == nil {
-		return errors.New("user already exists")
+		return ErrUserAlreadyExists
 	}
 
 	hashedPassword, err := s.pwd.HashPassword(password)
@@ -54,16 +61,16 @@ func (s *UserService) Register(username, email, password string) error {
 func (s *UserService) Login(username, password string) (*model.LoginResponse, error) {
 	u, err := s.repo.GetByUsername(username)
 	if err != nil {
-		return nil, errors.New("user not found")
+		return nil, ErrUserNotFound
 	}
 
 	if !s.pwd.CheckPassword(password, u.Password) {
-		return nil, errors.New("invalid password")
+		return nil, ErrInvalidPassword
 	}
 
 	token, err := s.jwt.GenerateToken(u.ID, u.Username)
 	if err != nil {
-		return nil, errors.New("failed to generate token")
+		return nil, ErrTokenGenerateFailed
 	}
 
 	return &model.LoginResponse{

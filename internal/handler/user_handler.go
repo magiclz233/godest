@@ -1,9 +1,10 @@
 package handler
 
 import (
-	"net/http"
+	"errors"
 
 	"godest/internal/service"
+	"godest/internal/transport/http/response"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,16 +26,20 @@ type RegisterRequest struct {
 func (h *UserHandler) Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(response.BadRequest(err.Error()))
 		return
 	}
 
 	if err := h.svc.Register(req.Username, req.Email, req.Password); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		if errors.Is(err, service.ErrUserAlreadyExists) {
+			_ = c.Error(response.Conflict(err.Error()))
+			return
+		}
+		_ = c.Error(response.Internal("failed to register user", err))
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "user registered successfully"})
+	response.Created(c, gin.H{"message": "user registered successfully"})
 }
 
 type LoginRequest struct {
@@ -45,24 +50,28 @@ type LoginRequest struct {
 func (h *UserHandler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(response.BadRequest(err.Error()))
 		return
 	}
 
 	resp, err := h.svc.Login(req.Username, req.Password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		if errors.Is(err, service.ErrUserNotFound) || errors.Is(err, service.ErrInvalidPassword) {
+			_ = c.Error(response.Unauthorized("invalid username or password"))
+			return
+		}
+		_ = c.Error(response.Internal("failed to login", err))
 		return
 	}
 
-	c.JSON(http.StatusOK, resp)
+	response.Success(c, resp)
 }
 
 func (h *UserHandler) ListUsers(c *gin.Context) {
 	users, err := h.svc.ListUsers()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get users"})
+		_ = c.Error(response.Internal("failed to get users", err))
 		return
 	}
-	c.JSON(http.StatusOK, users)
+	response.Success(c, users)
 }
