@@ -32,8 +32,10 @@ func main() {
 	passwordUtil := utils.NewPasswordUtil()
 
 	userService := service.NewUserService(userRepo, redisClient, jwtUtil, passwordUtil)
-	userHandler := handler.NewUserHandler(userService)
-	engine := router.NewRouter(userHandler, jwtUtil)
+	handlers := &handler.Handlers{
+		User: handler.NewUserHandler(userService),
+	}
+	engine := router.NewRouter(handlers, jwtUtil)
 
 	port := config.GlobalConfig.App.Port
 	logger.Log.Info("server starting", zap.String("port", port))
