@@ -1,16 +1,11 @@
 package main
 
 import (
+	"godest/internal/app"
 	"godest/internal/config"
-	"godest/internal/handler"
 	"godest/internal/model"
-	"godest/internal/repository"
-	"godest/internal/service"
-	"godest/internal/transport/http/router"
-	"godest/pkg/cache"
 	"godest/pkg/database"
 	"godest/pkg/logger"
-	"godest/pkg/utils"
 
 	"go.uber.org/zap"
 )
@@ -26,20 +21,12 @@ func main() {
 		logger.Log.Fatal("database migration failed", zap.Error(err))
 	}
 
-	userRepo := repository.NewUserRepository()
-	redisClient := cache.NewRedisClient()
-	jwtUtil := utils.NewJWTUtil()
-	passwordUtil := utils.NewPasswordUtil()
-
-	userService := service.NewUserService(userRepo, redisClient, jwtUtil, passwordUtil)
-	handlers := &handler.Handlers{
-		User: handler.NewUserHandler(userService),
-	}
-	engine := router.NewRouter(handlers, jwtUtil)
+	// Initialize the application and its dependencies
+	application := app.NewApp()
 
 	port := config.GlobalConfig.App.Port
 	logger.Log.Info("server starting", zap.String("port", port))
-	if err := engine.Run(port); err != nil {
+	if err := application.Run(port); err != nil {
 		logger.Log.Fatal("failed to start server", zap.Error(err))
 	}
 }
