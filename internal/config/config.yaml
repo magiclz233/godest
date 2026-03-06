@@ -4,8 +4,14 @@ app:
   mode: "debug"
 
 database:
-  driver: "sqlite"
-  source: "godest.db"
+  driver: "postgres"
+  # source: "godest.db"
+  host: "127.0.0.1"
+  port: "5432"
+  username: "postgres"
+  password: ""
+  database: "godest"
+  sslmode: "disable"
 
 redis:
   addr: "localhost:6379"
@@ -13,5 +19,5 @@ redis:
   db: 0
 
 jwt:
-  secret: "your-secret-key-should-be-complex"
+  secret: ""
   expire: 24

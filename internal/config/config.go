@@ -1,10 +1,12 @@
 package config
 
 import (
+	"os"
 	"strings"
 
 	"godest/pkg/log"
 
+	"github.com/subosito/gotenv"
 	"go.uber.org/zap"
 	"github.com/spf13/viper"
 )
@@ -47,6 +49,8 @@ type JWTConfig struct {
 var GlobalConfig *Config
 
 func LoadConfig() {
+	loadDotEnv()
+
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(".")
@@ -72,5 +76,15 @@ func LoadConfig() {
 
 	if err := viper.Unmarshal(&GlobalConfig); err != nil {
 		log.Fatal("unmarshal config failed", zap.Error(err))
+	}
+}
+
+func loadDotEnv() {
+	for _, filename := range []string{".env", ".env.local"} {
+		if _, err := os.Stat(filename); err == nil {
+			if err := gotenv.Load(filename); err != nil {
+				log.Warn("load env file failed", zap.String("file", filename), zap.Error(err))
+			}
+		}
 	}
 }
