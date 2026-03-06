@@ -1,9 +1,11 @@
 package config
 
 import (
-	"log"
 	"strings"
 
+	"godest/pkg/log"
+
+	"go.uber.org/zap"
 	"github.com/spf13/viper"
 )
 
@@ -23,6 +25,12 @@ type AppConfig struct {
 type DatabaseConfig struct {
 	Driver string `mapstructure:"driver"`
 	Source string `mapstructure:"source"`
+	Host string `mapstructure:"host"`
+	Port string `mapstructure:"port"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	Database string `mapstructure:"database"`
+	SSLMode string `mapstructure:"sslmode"`
 }
 
 type RedisConfig struct {
@@ -59,10 +67,10 @@ func LoadConfig() {
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Printf("read config file failed, using defaults/env: %v", err)
+		log.Warn("read config file failed, using defaults/env", zap.Error(err))
 	}
 
 	if err := viper.Unmarshal(&GlobalConfig); err != nil {
-		log.Fatalf("unmarshal config failed: %v", err)
+		log.Fatal("unmarshal config failed", zap.Error(err))
 	}
 }
