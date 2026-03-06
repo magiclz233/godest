@@ -2,12 +2,12 @@ package cache
 
 import (
 	"context"
-	"fmt"
-	"log"
 
 	"godest/internal/config"
+	"godest/pkg/log"
 
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 )
 
 type RedisClient struct {
@@ -23,9 +23,9 @@ func NewRedisClient() *RedisClient {
 	})
 
 	if err := rdb.Ping(context.Background()).Err(); err != nil {
-		log.Printf("warning: failed to connect to redis: %v", err)
+		log.Warn("failed to connect to redis", zap.Error(err))
 	} else {
-		fmt.Println("redis connected")
+		log.Info("redis connected")
 	}
 
 	return &RedisClient{Client: rdb}

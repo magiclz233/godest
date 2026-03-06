@@ -1,4 +1,4 @@
-package logger
+package log
 
 import (
 	"os"
@@ -10,6 +10,13 @@ import (
 // Log 全局日志对象
 // Global logger instance
 var Log *zap.Logger
+
+func L() *zap.Logger {
+	if Log != nil {
+		return Log
+	}
+	return zap.L()
+}
 
 // Init 初始化日志配置
 // Init initializes the logger configuration
@@ -34,3 +41,9 @@ func Init() {
 	// 替换全局的 logger，方便直接使用 zap.L()
 	zap.ReplaceGlobals(Log)
 }
+
+func Info(msg string, fields ...zap.Field)  { L().Info(msg, fields...) }
+func Warn(msg string, fields ...zap.Field)  { L().Warn(msg, fields...) }
+func Error(msg string, fields ...zap.Field) { L().Error(msg, fields...) }
+func Fatal(msg string, fields ...zap.Field) { L().Fatal(msg, fields...) }
+func Debug(msg string, fields ...zap.Field) { L().Debug(msg, fields...) }
