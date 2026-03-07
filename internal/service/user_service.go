@@ -10,6 +10,8 @@ import (
 	"godest/internal/repository"
 	"godest/pkg/cache"
 	"godest/pkg/utils"
+
+	"gorm.io/gorm"
 )
 
 type UserService struct {
@@ -77,6 +79,17 @@ func (s *UserService) Login(username, password string) (*model.LoginResponse, er
 		Token: token,
 		User:  *u,
 	}, nil
+}
+
+func (s *UserService) GetUserByID(id uint) (*model.User, error) {
+	u, err := s.repo.GetByID(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, err
+	}
+	return u, nil
 }
 
 func (s *UserService) ListUsers() ([]model.User, error) {

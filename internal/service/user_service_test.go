@@ -12,12 +12,14 @@ import (
 	"godest/pkg/utils"
 
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
 )
 
 type fakeUserRepo struct {
 	createFn        func(u *model.User) error
 	getByUsernameFn func(username string) (*model.User, error)
 	getAllFn        func() ([]model.User, error)
+	getByIDFn       func(id uint) (*model.User, error)
 }
 
 func (f *fakeUserRepo) Create(u *model.User) error {
@@ -33,6 +35,13 @@ func (f *fakeUserRepo) GetAll() ([]model.User, error) {
 		return []model.User{}, nil
 	}
 	return f.getAllFn()
+}
+
+func (f *fakeUserRepo) GetByID(id uint) (*model.User, error) {
+	if f.getByIDFn == nil {
+		return nil, gorm.ErrRecordNotFound
+	}
+	return f.getByIDFn(id)
 }
 
 var _ repository.UserRepository = (*fakeUserRepo)(nil)
@@ -103,4 +112,26 @@ func TestUserServiceLogin(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, resp)
 	assert.Equal(t, "invalid password", err.Error())
+}
+
+func TestUserServiceGetUserByID(t *testing.T) {
+	repo := &fakeUserRepo{
+		getByIDFn: func(id uint) (*model.User, error) {
+			if id == 1 {
+				return &model.User{Model: gorm.Model{ID: 1}, Username: "testuser"}, nil
+			}
+			return nil, gorm.ErrRecordNotFound
+		},
+	}
+
+	svc := service.NewUserService(repo, &cache.RedisClient{}, utils.NewJWTUtil(), utils.NewPasswordUtil())
+
+	user, err := svc.GetUserByID(1)
+	assert.NoError(t, err)
+	assert.NotNil(t, user)
+	assert.Equal(t, uint(1), user.ID)
+
+	user, err = svc.GetUserByID(99)
+	assert.ErrorIs(t, err, service.ErrUserNotFound)
+	assert.Nil(t, user)
 }
