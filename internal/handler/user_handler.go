@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"strconv"
 
 	"godest/internal/service"
 	"godest/internal/transport/http/response"
@@ -45,6 +46,27 @@ func (h *UserHandler) Register(c *gin.Context) {
 type LoginRequest struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
+}
+
+
+func (h *UserHandler) GetUserByID(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		_ = c.Error(response.BadRequest("invalid user ID"))
+		return
+	}
+
+	user, err := h.svc.GetUserByID(uint(id))
+	if err != nil {
+		if errors.Is(err, service.ErrUserNotFound) {
+			_ = c.Error(response.NotFound("user not found"))
+			return
+		}
+		_ = c.Error(response.Internal("failed to get user", err))
+		return
+	}
+
+	response.Success(c, user)
 }
 
 func (h *UserHandler) Login(c *gin.Context) {
