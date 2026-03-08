@@ -62,7 +62,7 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 			_ = c.Error(response.NotFound("user not found"))
 			return
 		}
-		_ = c.Error(response.Internal("failed to get user", err))
+		_ = c.Error(response.Internal("failed to get user", err)	)
 		return
 	}
 

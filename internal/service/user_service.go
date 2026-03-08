@@ -2,13 +2,12 @@ package service
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
-	"time"
 
+	internalcache "godest/internal/cache"
 	"godest/internal/model"
 	"godest/internal/repository"
-	"godest/pkg/cache"
+	pkgcache "godest/pkg/cache"
 	"godest/pkg/utils"
 
 	"gorm.io/gorm"
@@ -16,7 +15,7 @@ import (
 
 type UserService struct {
 	repo  repository.UserRepository
-	redis *cache.RedisClient
+	cache *internalcache.UserCache
 	jwt   *utils.JWTUtil
 	pwd   *utils.PasswordUtil
 }
@@ -30,13 +29,13 @@ var (
 
 func NewUserService(
 	repo repository.UserRepository,
-	redis *cache.RedisClient,
+	redis *pkgcache.RedisClient,
 	jwt *utils.JWTUtil,
 	pwd *utils.PasswordUtil,
 ) *UserService {
 	return &UserService{
 		repo:  repo,
-		redis: redis,
+		cache: internalcache.NewUserCache(redis),
 		jwt:   jwt,
 		pwd:   pwd,
 	}
@@ -57,7 +56,14 @@ func (s *UserService) Register(username, email, password string) error {
 		Email:    email,
 		Password: hashedPassword,
 	}
-	return s.repo.Create(u)
+	if err := s.repo.Create(u); err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	s.cache.Set(ctx, u)
+	s.cache.InvalidateList(ctx)
+	return nil
 }
 
 func (s *UserService) Login(username, password string) (*model.LoginResponse, error) {
@@ -82,6 +88,11 @@ func (s *UserService) Login(username, password string) (*model.LoginResponse, er
 }
 
 func (s *UserService) GetUserByID(id uint) (*model.User, error) {
+	ctx := context.Background()
+	if user, ok := s.cache.GetByID(ctx, id); ok {
+		return user, nil
+	}
+
 	u, err := s.repo.GetByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -89,20 +100,16 @@ func (s *UserService) GetUserByID(id uint) (*model.User, error) {
 		}
 		return nil, err
 	}
+
+	s.cache.Set(ctx, u)
 	return u, nil
 }
 
 func (s *UserService) ListUsers() ([]model.User, error) {
 	ctx := context.Background()
-	cacheKey := "users:all"
 
-	if s.redis != nil && s.redis.Client != nil {
-		if val, err := s.redis.Client.Get(ctx, cacheKey).Result(); err == nil {
-			var users []model.User
-			if err := json.Unmarshal([]byte(val), &users); err == nil {
-				return users, nil
-			}
-		}
+	if users, ok := s.cache.GetAll(ctx); ok {
+		return users, nil
 	}
 
 	users, err := s.repo.GetAll()
@@ -110,11 +117,7 @@ func (s *UserService) ListUsers() ([]model.User, error) {
 		return nil, err
 	}
 
-	if s.redis != nil && s.redis.Client != nil {
-		if data, err := json.Marshal(users); err == nil {
-			s.redis.Client.Set(ctx, cacheKey, data, time.Minute)
-		}
-	}
+	s.cache.SetAll(ctx, users)
 
 	return users, nil
 }
