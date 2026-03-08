@@ -3,7 +3,7 @@ package cache
 import (
 	"context"
 
-	"godest/internal/config"
+	"godest/config"
 	"godest/pkg/log"
 
 	"github.com/redis/go-redis/v9"

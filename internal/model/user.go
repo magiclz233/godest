@@ -13,6 +13,7 @@ type User struct {
 	Phone    string `gorm:"size:20" json:"phone,omitempty"`
 	Email    string `gorm:"uniqueIndex;size:100;not null" json:"email"`
 	Password string `gorm:"not null" json:"-"`
+	
 }
 
 func (User) TableName() string {

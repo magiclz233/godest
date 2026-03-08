@@ -2,7 +2,7 @@ package main
 
 import (
 	"godest/internal/app"
-	"godest/internal/config"
+	"godest/config"
 	"godest/internal/model"
 	"godest/pkg/database"
 	"godest/pkg/log"

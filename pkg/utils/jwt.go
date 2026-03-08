@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"godest/internal/config"
+	"godest/config"
 
 	"github.com/golang-jwt/jwt/v5"
 )

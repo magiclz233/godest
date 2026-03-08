@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"godest/internal/config"
+	"godest/config"
 	"godest/internal/model"
 	"godest/internal/repository"
 	"godest/internal/service"

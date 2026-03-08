@@ -1,7 +1,7 @@
 package router
 
 import (
-	"godest/internal/config"
+	"godest/config"
 	"godest/internal/handler"
 	"godest/internal/transport/http/middleware"
 	"godest/pkg/utils"
