@@ -17,5 +17,6 @@ func NewRouter(handlers *handler.Handlers, jwtUtil *utils.JWTUtil) *gin.Engine {
 
 	apiV1 := r.Group("/api/v1")
 	registerUserRoutes(apiV1, handlers.User, jwtUtil)
+	registerTenantRoutes(apiV1, handlers.Tenant, jwtUtil)
 	return r
 }
