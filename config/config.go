@@ -59,7 +59,7 @@ func LoadConfig() {
 
 	viper.SetDefault("app.name", "godest")
 	viper.SetDefault("app.port", ":8080")
-	viper.SetDefault("app.mode", "debug")
+	viper.SetDefault("app.mode", "release")
 	viper.SetDefault("database.driver", "sqlite")
 	viper.SetDefault("database.source", "godest.db")
 	viper.SetDefault("redis.addr", "localhost:6379")

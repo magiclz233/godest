@@ -47,12 +47,14 @@ func NewApp() *App {
 // repositories 结构体用于管理所有的 Repository
 type repositories struct {
 	user repository.UserRepository
+	tenant repository.TenantRepository
 	// Order repository.OrderRepository // 示例：后续扩展订单模块
 }
 
 func initRepositories() *repositories {
 	return &repositories{
 		user: repository.NewUserRepository(),
+		tenant: repository.NewTenantRepository(),
 		// Order: repository.NewOrderRepository(),
 	}
 }
@@ -60,12 +62,14 @@ func initRepositories() *repositories {
 // services 结构体用于管理所有的 Service
 type services struct {
 	user *service.UserService
+	tenant *service.TenantService
 	// order *service.OrderService // 示例：后续扩展订单模块
 }
 
 func initServices(repos *repositories, redisClient *cache.RedisClient, jwtUtil *utils.JWTUtil, passwordUtil *utils.PasswordUtil) *services {
 	return &services{
 		user: service.NewUserService(repos.user, redisClient, jwtUtil, passwordUtil),
+		tenant: service.NewTenantService(repos.tenant, redisClient),
 		// order: service.NewOrderService(repos.order, ...),
 	}
 }
@@ -74,6 +78,7 @@ func initServices(repos *repositories, redisClient *cache.RedisClient, jwtUtil *
 func initHandlers(s *services) *handler.Handlers {
 	return &handler.Handlers{
 		User: handler.NewUserHandler(s.user),
+		Tenant: handler.NewTenantHandler(s.tenant),
 		// Order: handler.NewOrderHandler(s.order),
 	}
 }

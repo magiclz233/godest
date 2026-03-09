@@ -15,4 +15,5 @@ func registerUserRoutes(apiV1 *gin.RouterGroup, userHandler *handler.UserHandler
 	authorized := apiV1.Group("/")
 	authorized.Use(middleware.AuthMiddleware(jwtUtil))
 	authorized.GET("/users", userHandler.ListUsers)
+	authorized.GET("/users/:id", userHandler.GetUserByID)
 }

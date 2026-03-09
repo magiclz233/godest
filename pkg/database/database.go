@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	"godest/internal/config"
+	"godest/config"
 	"godest/pkg/log"
 
 	"github.com/glebarez/sqlite"

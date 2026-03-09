@@ -35,6 +35,10 @@ func BadRequest(message string) *APIError {
 	return NewAPIError(http.StatusBadRequest, CodeBadRequest, message, nil)
 }
 
+func NotFound(message string) *APIError {
+	return NewAPIError(http.StatusNotFound, CodeNotFound, message, nil)
+}
+
 func Unauthorized(message string) *APIError {
 	return NewAPIError(http.StatusUnauthorized, CodeUnauthorized, message, nil)
 }

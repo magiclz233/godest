@@ -10,6 +10,7 @@ const (
 	CodeOK           = "OK"
 	CodeBadRequest   = "BAD_REQUEST"
 	CodeUnauthorized = "UNAUTHORIZED"
+	CodeNotFound     = "NOT_FOUND"
 	CodeConflict     = "CONFLICT"
 	CodeInternal     = "INTERNAL_ERROR"
 )
